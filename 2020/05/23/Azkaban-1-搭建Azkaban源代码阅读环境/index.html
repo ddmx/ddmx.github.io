@@ -106,7 +106,8 @@
       <p>在公司的日常工作中， 经常会用到 Azkaban。作为一种工作流管理系统, 对我来说, 的确有学习的价值。</p>
 <p>本文将会使用最新版的Azkaban源代码, 编译并搭建一套可运行调试的系统。开发工具使用的是IDEA, 运行环境是CentOS7。</p>
 <h4 id="从github下载源代码"><a href="#从github下载源代码" class="headerlink" title="从github下载源代码"></a>从github下载源代码</h4><p>截止目前，最新的tag版本是: 3.86.0<br>可以直接点击下载源码: <a href="https://github.com/azkaban/azkaban/archive/3.86.0.zip " target="_blank" rel="noopener">3.86.0</a></p>
-<p>&lt; !– more –&gt;</p>
+<a id="more"></a>
+
 <h4 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h4><p>用IDEA打开, File -&gt; Open… -&gt; 选择已解压的代码目录 -&gt; 点击 OK。<br>此时, IDEA会自动同步一些Gradle项目的配置，稍微等待一会。</p>
 <p>为了解决gradle项目下载依赖慢的问题， 我们可以加上阿里云的maven仓库地址。<br>在azkaban根目录下的 build.gradle 中加入下面内容即可:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">maven &#123; url <span class="string">"http://maven.aliyun.com/nexus/content/groups/public"</span> &#125;</span><br></pre></td></tr></table></figure>
