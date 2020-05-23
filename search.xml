@@ -26,4 +26,102 @@
         <tag>教程</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Azkaban-1.搭建Azkaban源代码阅读环境</title>
+    <url>/2020/05/23/Azkaban-1-%E6%90%AD%E5%BB%BAAzkaban%E6%BA%90%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%8E%AF%E5%A2%83/</url>
+    <content><![CDATA[<p>在公司的日常工作中， 经常会用到 Azkaban。作为一种工作流管理系统, 对我来说, 的确有学习的价值。</p>
+<p>本文将会使用最新版的Azkaban源代码, 编译并搭建一套可运行调试的系统。开发工具使用的是IDEA, 运行环境是CentOS7。</p>
+<h4 id="从github下载源代码"><a href="#从github下载源代码" class="headerlink" title="从github下载源代码"></a>从github下载源代码</h4><p>截止目前，最新的tag版本是: 3.86.0<br>可以直接点击下载源码: <a href="https://github.com/azkaban/azkaban/archive/3.86.0.zip " target="_blank" rel="noopener">3.86.0</a></p>
+<h4 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h4><p>用IDEA打开, File -&gt; Open… -&gt; 选择已解压的代码目录 -&gt; 点击 OK。<br>此时, IDEA会自动同步一些Gradle项目的配置，稍微等待一会。</p>
+<p>为了解决gradle项目下载依赖慢的问题， 我们可以加上阿里云的maven仓库地址。<br>在azkaban根目录下的 build.gradle 中加入下面内容即可:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">maven &#123; url <span class="string">"http://maven.aliyun.com/nexus/content/groups/public"</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>加入后的效果是这样的:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">allprojects &#123;</span><br><span class="line">  apply plugin: &#39;jacoco&#39;</span><br><span class="line"></span><br><span class="line">  repositories &#123;</span><br><span class="line">    maven &#123; url &quot;http:&#x2F;&#x2F;maven.aliyun.com&#x2F;nexus&#x2F;content&#x2F;groups&#x2F;public&quot; &#125;</span><br><span class="line">    mavenCentral()</span><br><span class="line">    mavenLocal()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意: 这里需要保留原来的仓库地址, 因为有些依赖阿里云仓库下载不到</p>
+</blockquote>
+<p>配置好之后, 我们就可以执行以下命令编译了:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./gradlew build -x <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<p>编译成功后, 就有了az-web 和 az-exec 的可运行程序了。</p>
+<h4 id="数据库、表初始化"><a href="#数据库、表初始化" class="headerlink" title="数据库、表初始化"></a>数据库、表初始化</h4><p>推荐使用 MySQL5.7.x </p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建数据库</span></span><br><span class="line">mysql&gt; CREATE DATABASE azkaban;</span><br><span class="line"></span><br><span class="line"><span class="comment">--创建用户, username/password 自定义</span></span><br><span class="line">mysql&gt; CREATE USER 'username'@'%' IDENTIFIED BY 'password';</span><br><span class="line"></span><br><span class="line"><span class="comment">--授权, &lt;username&gt; 改为你自己的用户名 </span></span><br><span class="line">mysql&gt; GRANT SELECT,INSERT,UPDATE,DELETE ON azkaban.* to '&lt;username&gt;'@'%' WITH GRANT OPTION;</span><br></pre></td></tr></table></figure>
+
+<p>调整Mysql Packet Size, 找到MySQL的配置文件,修改<code>max_allowed_packet=1024M</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">...</span><br><span class="line">max_allowed_packet&#x3D;1024M</span><br></pre></td></tr></table></figure>
+
+<p>重启MySQL</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo &#x2F;sbin&#x2F;service mysqld restart</span><br></pre></td></tr></table></figure>
+
+<p>使用初始化sql建表:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 位置</span></span><br><span class="line">azkaban-3.86.0\azkaban-db\build\sql\create-all-sql-0.1.0-SNAPSHOT.sql</span><br></pre></td></tr></table></figure>
+
+<h4 id="运行azkaban执行节点"><a href="#运行azkaban执行节点" class="headerlink" title="运行azkaban执行节点"></a>运行azkaban执行节点</h4><p>编译后的压缩包路径:<br>azkaban-exec-server/build/distributions/azkaban-exec-server-0.1.0-SNAPSHOT.zip</p>
+<ol>
+<li><p>更改配置文件<br>上传 azkaban-exec-server-0.1.0-SNAPSHOT.zip 到 centos 服务器上，解压。修改 azkaban-exec-server/conf/azkaban.properties 配置文件:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 数据库信息</span></span><br><span class="line">mysql.port=3306</span><br><span class="line">mysql.host=192.168.3.25</span><br><span class="line">mysql.database=azkaban</span><br><span class="line">mysql.user=root</span><br><span class="line">mysql.password=123456</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行节点信息</span></span><br><span class="line">executor.port=12321</span><br><span class="line">azkaban.use.multiple.executors=<span class="literal">true</span></span><br><span class="line">azkaban.executorselector.filters=StaticRemainingFlowSize,MinimumFreeMemory,CpuStatus</span><br><span class="line">azkaban.executorselector.comparator.NumberOfAssignedFlowComparator=1</span><br><span class="line">azkaban.executorselector.comparator.Memory=1</span><br><span class="line">azkaban.executorselector.comparator.LastDispatched=1</span><br><span class="line">azkaban.executorselector.comparator.CpuUsage=1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置远程debug</p>
+</li>
+<li><p>1 编辑文件 azkaban-exec-server/bin/internal/internal-start-executor.sh， <strong>增加</strong>一个 AZKABAN_OPTS 值</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">......</span><br><span class="line">AZKABAN_OPTS=<span class="string">"<span class="variable">$AZKABAN_OPTS</span> -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5554"</span></span><br><span class="line">java <span class="variable">$AZKABAN_OPTS</span> <span class="variable">$JAVA_LIB_PATH</span> -cp <span class="variable">$CLASSPATH</span> azkaban.execapp.AzkabanExecutorServer -conf <span class="variable">$conf</span> <span class="variable">$@</span> &amp;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>2.2 IDEA中配置<br>点击编辑运行时配置 -&gt; 点击左上角的 <code>+</code> ，选择 Remote 选项。配置如下图:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/new/az1.3.png"><br>说明:</p>
+<ul>
+<li>Host: 为az执行节点的IP</li>
+<li>Port: 为 上面我们配置的那个远程debug端口</li>
+<li>Use module classpath: 为az-exec模块的main</li>
+</ul>
+<p>点击OK即可, 需要远程服务先启动,才能进行远程debug操作。</p>
+<ol>
+<li>运行并激活az-exec<br>运行:<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> azkaban-exec-server</span><br><span class="line">bin/start-exec.sh</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>激活:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -G &quot;http:&#x2F;&#x2F;192.168.3.25:12321&#x2F;executor?action&#x3D;activate&quot; &amp;&amp; echo</span><br></pre></td></tr></table></figure>
+<ul>
+<li>192.168.3.25:12321 为 az执行节点的地址</li>
+</ul>
+<p>此时, 可以发现azkaban库 executors 表中已经有执行节点的记录<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/new/az1.4.png"></p>
+<h4 id="运行azkaban-Web节点"><a href="#运行azkaban-Web节点" class="headerlink" title="运行azkaban Web节点"></a>运行azkaban Web节点</h4><p>编译后的压缩包路径:<br>azkaban-web-server/build/distributions/azkaban-web-server-0.1.0-SNAPSHOT.zip</p>
+<ol>
+<li><p>更改配置文件<br>上传 azkaban-web-server-0.1.0-SNAPSHOT.zip 到 centos 服务器上，解压。修改 azkaban-web-server/conf/azkaban.properties 配置文件:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 数据库信息</span></span><br><span class="line">mysql.port=3306</span><br><span class="line">mysql.host=192.168.3.25</span><br><span class="line">mysql.database=azkaban</span><br><span class="line">mysql.user=root</span><br><span class="line">mysql.password=123456</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置远程debug</p>
+</li>
+<li><p>1 编辑文件 azkaban-web-server/bin/internal/internal-start-web.sh， <strong>增加</strong>一个 AZKABAN_OPTS 值</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">......</span><br><span class="line">AZKABAN_OPTS=<span class="string">"<span class="variable">$AZKABAN_OPTS</span> -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5555"</span></span><br><span class="line">java <span class="variable">$AZKABAN_OPTS</span> <span class="variable">$JAVA_LIB_PATH</span> -cp <span class="variable">$CLASSPATH</span> azkaban.webapp.AzkabanWebServer -conf <span class="variable">$conf</span> <span class="variable">$@</span> &amp;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>2.2 IDEA中配置<br>点击编辑运行时配置 -&gt; 点击左上角的 <code>+</code> ，选择 Remote 选项。配置如下图:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/new/az1.5.png"></p>
+<ol>
+<li>运行az-web<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> azkaban-web-server</span><br><span class="line">bin/start-web.sh</span><br></pre></td></tr></table></figure></li>
+<li>登录<br>Azkaban默认使用的xml来管理用户。配置文件目录: azkaban-web-server/conf/azkaban-users.xml<br>访问 <a href="http://192.168.3.25:8081" target="_blank" rel="noopener">http://192.168.3.25:8081</a>, 使用azkaban/azkaban 即可登录。</li>
+</ol>
+<ul>
+<li>192.168.3.25: 为 az-web的ip</li>
+<li>8081: 为az-web的端口</li>
+</ul>
+<h4 id="远程调试"><a href="#远程调试" class="headerlink" title="远程调试"></a>远程调试</h4><p>在 az-web 和 az-exec 都启动之后, 先确保所有端口都能正常访问, 我这儿配置的是 </p>
+<ul>
+<li>az-exec服务端口: 12321</li>
+<li>az-exec远程debug端口: 5554</li>
+<li>az-web服务端口: 8091</li>
+<li>az-web远程debug端口: 5555</li>
+</ul>
+<p>然后在IDEA中运行下图中的这两项即可。<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/new/az1.6.png"><br>在想要看细节的地方打上断点, 就可以愉快玩耍啦。</p>
+]]></content>
+      <tags>
+        <tag>Azkaban</tag>
+        <tag>调试</tag>
+        <tag>IDEA</tag>
+        <tag>源码阅读</tag>
+      </tags>
+  </entry>
 </search>
