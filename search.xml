@@ -18,6 +18,13 @@
 <blockquote>
 <p>注意: 这里需要保留原来的仓库地址, 因为有些依赖阿里云仓库下载不到</p>
 </blockquote>
+<p>再配置一个 npm的淘宝源, 毕竟国外的不太稳定。<br>在用户目录下, 创建 .npmrc 文件:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vi ~&#x2F;.npmrc</span><br></pre></td></tr></table></figure>
+
+<p>再加入以下内容即可:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">registry&#x3D;https:&#x2F;&#x2F;registry.npm.taobao.org&#x2F;</span><br></pre></td></tr></table></figure>
+
+
 <p>配置好之后, 我们就可以执行以下命令编译了:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./gradlew build -x <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
 <p>编译成功后, 就有了az-web 和 az-exec 的可运行程序压缩包了。</p>
