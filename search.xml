@@ -346,8 +346,8 @@ table th:nth-of-type(2){
         <category>正则表达式</category>
       </categories>
       <tags>
-        <tag>其他</tag>
         <tag>正则表达式</tag>
+        <tag>其他</tag>
       </tags>
   </entry>
 </search>

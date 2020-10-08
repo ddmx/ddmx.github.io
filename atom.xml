@@ -64,9 +64,9 @@ table th:nth-of-type(2){
     <category term="正则表达式" scheme="http://yoursite.com/categories/%E5%85%B6%E4%BB%96/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/"/>
     
     
-    <category term="其他" scheme="http://yoursite.com/tags/%E5%85%B6%E4%BB%96/"/>
-    
     <category term="正则表达式" scheme="http://yoursite.com/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/"/>
+    
+    <category term="其他" scheme="http://yoursite.com/tags/%E5%85%B6%E4%BB%96/"/>
     
   </entry>
   
