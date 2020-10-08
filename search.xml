@@ -102,7 +102,17 @@
   <entry>
     <title>正则表达式学习</title>
     <url>/2020/10/03/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AD%A6%E4%B9%A0/</url>
-    <content><![CDATA[<h5 id="正则示例"><a href="#正则示例" class="headerlink" title="正则示例"></a>正则示例</h5><table>
+    <content><![CDATA[<style>
+table th:nth-of-type(1){
+    width: 17%;
+}
+table th:nth-of-type(2){
+    width: 83%;
+}
+</style>
+
+
+<h5 id="正则示例"><a href="#正则示例" class="headerlink" title="正则示例"></a>正则示例</h5><table>
 <thead>
 <tr>
 <th>正则表达式</th>
