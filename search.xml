@@ -351,178 +351,61 @@ table th:nth-of-type(2){
       </tags>
   </entry>
   <entry>
-    <title>Flink系列 1.初识Flink</title>
-    <url>/2020/10/29/Flink%E7%B3%BB%E5%88%97%201.%E5%88%9D%E8%AF%86Flink/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>Flink</p>
+    <title>MySQL 小技巧</title>
+    <url>/2020/11/29/mysql-tips/</url>
+    <content><![CDATA[<p>接下来一段时间, 会将主要精力投入在SQL优化 以及工作中常用的一些SQL小技巧总结。当然啦, 也会对Hive、Spark SQL 和 Presto 中的SQL使用做一些总结。之前SQL写得比较少, 更多的是用的pyspark进行大数据处理, 后端服务更多的用Mybatis自动生成工具来生成DAO层SQL代码,然后在Service层进行多次调用, 一是因为业务逻辑不复杂, 二是因为性能要求也没那么高。不过, 总感觉SQL这块如果不掌握的话, 可能后面发展会受限。好了, 废话不多说, 我们开始一段时间的 SQL 之旅吧。</p>
+<a id="more"></a>
+
+<h4 id="实验数据"><a href="#实验数据" class="headerlink" title="实验数据"></a>实验数据</h4><p>表1. user:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/user.png"></p>
+<p>表2. job:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/job.png"></p>
+<p>表3. sports_duration:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/sports_duration.png"></p>
+<h4 id="1-如何在MySQL中使用full-join"><a href="#1-如何在MySQL中使用full-join" class="headerlink" title="1. 如何在MySQL中使用full join?"></a>1. 如何在MySQL中使用full join?</h4><p>场景: 将上面的user 表和 job表 合成一张大表。</p>
+<p>full join 就是取两者的并集, 而MySQL中是不能使用full join 的, 下面来说下解决方法:<br>使用表user left join 表job, 然后 union all 表user right join 表job(其实也就是表job left join 表user)即可, union all 就是两者的并集。</p>
+<p>sql 如下:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, j.name <span class="keyword">as</span> jname, j.job <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">left</span> <span class="keyword">JOIN</span> job j <span class="keyword">on</span> u.<span class="string">`name`</span> = j.name</span><br><span class="line"><span class="keyword">UNION</span> <span class="keyword">all</span></span><br><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, j.name <span class="keyword">as</span> jname, j.job <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">right</span> <span class="keyword">JOIN</span> job j <span class="keyword">on</span> u.<span class="string">`name`</span> = j.name;</span><br></pre></td></tr></table></figure>
+<p>结果如下：<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/full_join.png"></p>
+<p>通过上图, 我们也可以很清楚的看到 left join 和 right join 后的效果。<br>user left join job 就是user 表作为主表, 将 job 表中与 user表有关联关系的数据作为补充, 详见 上图 left join 红框。<br>另外, 通过指定 where jname is null, 我们也可以取到 user 表中有而 job 表中不存在的用户。<br>right join 同理, 这里就不赘述了。</p>
+<h4 id="2-如何更新使用过滤条件中包括自身的表？"><a href="#2-如何更新使用过滤条件中包括自身的表？" class="headerlink" title="2. 如何更新使用过滤条件中包括自身的表？"></a>2. 如何更新使用过滤条件中包括自身的表？</h4><p>场景: 把同时存在于 user表 和 job表的记录的用户在user 表中的age 字段更新为30。<br>错误示例：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> age=<span class="number">30</span> <span class="keyword">where</span> user.name <span class="keyword">in</span> (<span class="keyword">select</span> j.name <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">join</span> job j <span class="keyword">on</span> u.name=j.name);</span><br></pre></td></tr></table></figure>
+
+<p>报错：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">update user set age&#x3D;30 where user.name in (select j.name from user u join job j on u.name&#x3D;j.name)</span><br><span class="line">&gt; 1093 - You can&#39;t specify target table &#39;user&#39; for update in FROM clause</span><br></pre></td></tr></table></figure>
+<p>说明： MySQL 中不支持这样操作, 在 SQLServer 或者 Oracle中可以正常执行。 </p>
+<p>正确解法:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> u <span class="keyword">join</span> (<span class="keyword">select</span> j.name <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">join</span> job j <span class="keyword">on</span> u.name=j.name) j <span class="keyword">on</span> a.name=j.name <span class="keyword">set</span> u.age=<span class="number">30</span>;</span><br></pre></td></tr></table></figure>
+<p>更新结果如下:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/user_join_update.png"></p>
+<h4 id="3-如何使用-join-来优化子查询"><a href="#3-如何使用-join-来优化子查询" class="headerlink" title="3. 如何使用 join 来优化子查询?"></a>3. 如何使用 join 来优化子查询?</h4><p>先看下面这个带有子查询的sql:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, (<span class="keyword">select</span> job <span class="keyword">from</span> job <span class="keyword">where</span> job.name = u.name ) <span class="keyword">as</span> job <span class="keyword">from</span> <span class="keyword">user</span> u;</span><br></pre></td></tr></table></figure>
+
+<p>使用 join 优化:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, job <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">left</span> <span class="keyword">join</span> job j <span class="keyword">on</span> u.<span class="string">`name`</span> = j.<span class="string">`name`</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-使用join来优化聚合子查询"><a href="#4-使用join来优化聚合子查询" class="headerlink" title="4. 使用join来优化聚合子查询"></a>4. 使用join来优化聚合子查询</h4><p>场景: 找出user 表中三人, 各自运动时长最长的日期。新增表 sports_duration, duration 为运动时长, 单位: 分钟</p>
+<p>聚合子查询:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, s.day, s.duration <span class="keyword">from</span> <span class="keyword">user</span> u </span><br><span class="line"><span class="keyword">join</span> sports_duration s <span class="keyword">on</span> u.name=s.name </span><br><span class="line"><span class="keyword">where</span> s.duration=(</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">max</span>(c.duration) <span class="keyword">from</span> sports_duration c <span class="keyword">where</span> c.name=s.name</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>结果如下:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/max_duration.png"></p>
+<p>使用join优化后, 避免子查询:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, s.day, s.duration <span class="keyword">from</span> <span class="keyword">user</span> u </span><br><span class="line"><span class="keyword">join</span> sports_duration s <span class="keyword">on</span> u.name=s.name</span><br><span class="line"><span class="keyword">join</span> sports_duration c <span class="keyword">on</span> c.name=s.name </span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> u.name,s.day,s.duration</span><br><span class="line"><span class="keyword">having</span> s.duration=<span class="keyword">max</span>(c.duration);</span><br></pre></td></tr></table></figure>
+
+<p>返回的结果集是相同的。</p>
+<h4 id="5-如何实现分组选择"><a href="#5-如何实现分组选择" class="headerlink" title="5. 如何实现分组选择?"></a>5. 如何实现分组选择?</h4><p>在 Oracle、SQLServer、PgSQL中可以使用分区查询函数实现:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tmp <span class="keyword">as</span> (</span><br><span class="line">    <span class="keyword">select</span> u.name, s.day, s.duration, row_number() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> u.name <span class="keyword">order</span> <span class="keyword">by</span> s.duration) cnt</span><br><span class="line">    <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">join</span> sports_duration s </span><br><span class="line">    <span class="keyword">on</span> u.name = s.name</span><br><span class="line">) <span class="keyword">select</span> * <span class="keyword">from</span> tmp <span class="keyword">where</span> cnt &lt;= <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+<p>但是, 在 MySQL中不支持。</p>
+<p>我们可以这样做:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, d.day, d.duration <span class="keyword">from</span> (</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span>, (<span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> sports_duration s <span class="keyword">where</span> s.name=c.name <span class="keyword">and</span> c.duration &lt;= s.duration) <span class="keyword">as</span> cnt <span class="keyword">from</span> sports_duration c</span><br><span class="line">    <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span></span><br><span class="line">) d <span class="keyword">join</span> <span class="keyword">user</span> u <span class="keyword">on</span> d.name = u.name</span><br><span class="line"><span class="keyword">where</span> cnt &lt;= <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+<p>结果如下:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/duration_top_2.png"></p>
+<p>下面我们来拆分这个SQL:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, d.day, d.duration, cnt <span class="keyword">from</span> (</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span>, (<span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> sports_duration s <span class="keyword">where</span> s.name=c.name <span class="keyword">and</span> c.duration &lt;= s.duration) <span class="keyword">as</span> cnt <span class="keyword">from</span> sports_duration c</span><br><span class="line">    <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span></span><br><span class="line">) d <span class="keyword">join</span> <span class="keyword">user</span> u <span class="keyword">on</span> d.name = u.name;</span><br></pre></td></tr></table></figure>
+<p>去掉 where条件, 加上返回 cnt 字段, 就可以很清晰的看到明白这个sql的逻辑了, 结果如下图:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/duration_top_cnt.png"><br>利用子查询中统计出用户运动耗时大于等于当前运动记录的条数, 然后再进行过滤。</p>
 ]]></content>
       <categories>
-        <category>大数据</category>
-        <category>数据处理</category>
-        <category>Flink</category>
+        <category>数据库</category>
+        <category>MySQL</category>
       </categories>
       <tags>
-        <tag>大数据</tag>
-        <tag>数据处理</tag>
-        <tag>Flink</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hbase</title>
-    <url>/2020/10/29/Hbase/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>Hbase</p>
-]]></content>
-      <categories>
-        <category>大数据</category>
-        <category>数据存储</category>
-        <category>Hbase</category>
-      </categories>
-      <tags>
-        <tag>大数据</tag>
-        <tag>数据存储</tag>
-        <tag>Hbase</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>React 学习</title>
-    <url>/2020/10/29/React/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>React</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-        <category>React</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-        <tag>React</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spark 学习</title>
-    <url>/2020/10/29/Spark/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>Spark</p>
-]]></content>
-      <categories>
-        <category>大数据</category>
-        <category>数据处理</category>
-        <category>Spark</category>
-      </categories>
-      <tags>
-        <tag>大数据</tag>
-        <tag>数据处理</tag>
-        <tag>Spark</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>爬虫系列</title>
-    <url>/2020/10/29/%E7%88%AC%E8%99%AB%E7%B3%BB%E5%88%97/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>爬虫</p>
-]]></content>
-      <categories>
-        <category>大数据</category>
-        <category>数据采集</category>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>大数据</tag>
-        <tag>数据采集</tag>
-        <tag>爬虫</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>并发编程-集合</title>
-    <url>/2020/10/29/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>集合</p>
-]]></content>
-      <categories>
-        <category>并发编程</category>
-        <category>集合</category>
-      </categories>
-      <tags>
-        <tag>并发编程</tag>
-        <tag>集合</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>线程与进程</title>
-    <url>/2020/10/29/%E7%BA%BF%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>线程与进程</p>
-]]></content>
-      <categories>
-        <category>并发编程</category>
-        <category>多线程</category>
-      </categories>
-      <tags>
-        <tag>并发编程</tag>
-        <tag>多线程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>并发编程-锁</title>
-    <url>/2020/10/29/%E9%94%81/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>锁</p>
-]]></content>
-      <categories>
-        <category>并发编程</category>
-        <category>锁</category>
-      </categories>
-      <tags>
-        <tag>并发编程</tag>
-        <tag>锁</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ES5语法</title>
-    <url>/2020/10/29/ES5%E8%AF%AD%E6%B3%95/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>React</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-        <category>ES5</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-        <tag>ES5</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ES6语法</title>
-    <url>/2020/10/29/ES6%E8%AF%AD%E6%B3%95/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>ES6</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-        <category>ES6</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-        <tag>ES6</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SQL 学习</title>
-    <url>/2020/10/29/SQL/</url>
-    <content><![CDATA[<p>TODO:</p>
-<p>SQL</p>
-]]></content>
-      <categories>
-        <category>大数据</category>
-        <category>数据处理</category>
-        <category>SQL</category>
-      </categories>
-      <tags>
-        <tag>大数据</tag>
-        <tag>数据处理</tag>
         <tag>SQL</tag>
+        <tag>MySQL</tag>
       </tags>
   </entry>
 </search>

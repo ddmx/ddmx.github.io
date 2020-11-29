@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    
+    <title>MySQL 小技巧 | Matthew Blog</title>
+    
+    
+        <meta name="keywords" content="SQL,MySQL" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="接下来一段时间, 会将主要精力投入在SQL优化 以及工作中常用的一些SQL小技巧总结。当然啦, 也会对Hive、Spark SQL 和 Presto 中的SQL使用做一些总结。之前SQL写得比较少, 更多的是用的pyspark进行大数据处理, 后端服务更多的用Mybatis自动生成工具来生成DAO层SQL代码,然后在Service层进行多次调用, 一是因为业务逻辑不复杂, 二是因为性能要求也没那么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 小技巧">
+<meta property="og:url" content="http://yoursite.com/2020/11/29/mysql-tips/index.html">
+<meta property="og:site_name" content="Matthew Blog">
+<meta property="og:description" content="接下来一段时间, 会将主要精力投入在SQL优化 以及工作中常用的一些SQL小技巧总结。当然啦, 也会对Hive、Spark SQL 和 Presto 中的SQL使用做一些总结。之前SQL写得比较少, 更多的是用的pyspark进行大数据处理, 后端服务更多的用Mybatis自动生成工具来生成DAO层SQL代码,然后在Service层进行多次调用, 一是因为业务逻辑不复杂, 二是因为性能要求也没那么">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/user.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/job.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/sports_duration.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/full_join.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/user_join_update.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/max_duration.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/duration_top_2.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/duration_top_cnt.png">
+<meta property="article:published_time" content="2020-11-29T15:27:45.000Z">
+<meta property="article:modified_time" content="2020-11-29T15:40:46.219Z">
+<meta property="article:author" content="Matthew">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/user.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="Matthew Blog" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/favicon.ico" />
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/open-sans/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+<script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    
+<script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Matthew Blog</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            正则表达式
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2020/10/03/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AD%A6%E4%B9%A0/">正则表达式学习</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            IDEA
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2020/05/23/Azkaban-1.%E6%90%AD%E5%BB%BAAzkaban%E6%BA%90%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%8E%AF%E5%A2%83/">Azkaban-1.搭建Azkaban源代码阅读环境</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            数据库
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            MySQL
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file active"><a href="/2020/11/29/mysql-tips/">MySQL 小技巧</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                     </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>tags</span></h3>
+        <div class="widget">
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Azkaban/" rel="tag">Azkaban</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDEA/" rel="tag">IDEA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%B6%E4%BB%96/" rel="tag">其他</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-mysql-tips" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/">MySQL</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/MySQL/" rel="tag">MySQL</a>, <a class="tag-link" href="/tags/SQL/" rel="tag">SQL</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2020/11/29/mysql-tips/">
+            <time datetime="2020-11-29T15:27:45.000Z" itemprop="datePublished">2020-11-29</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/mysql-tips.md' target="_blank" rel="noopener"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/mysql-tips.md' target="_blank" rel="noopener"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/mysql-tips.md' target="_blank" rel="noopener"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            MySQL 小技巧
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#实验数据"><span class="toc-number">1.</span> <span class="toc-text">实验数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-如何在MySQL中使用full-join"><span class="toc-number">2.</span> <span class="toc-text">1. 如何在MySQL中使用full join?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-如何更新使用过滤条件中包括自身的表？"><span class="toc-number">3.</span> <span class="toc-text">2. 如何更新使用过滤条件中包括自身的表？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-如何使用-join-来优化子查询"><span class="toc-number">4.</span> <span class="toc-text">3. 如何使用 join 来优化子查询?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-使用join来优化聚合子查询"><span class="toc-number">5.</span> <span class="toc-text">4. 使用join来优化聚合子查询</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-如何实现分组选择"><span class="toc-number">6.</span> <span class="toc-text">5. 如何实现分组选择?</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p>接下来一段时间, 会将主要精力投入在SQL优化 以及工作中常用的一些SQL小技巧总结。当然啦, 也会对Hive、Spark SQL 和 Presto 中的SQL使用做一些总结。之前SQL写得比较少, 更多的是用的pyspark进行大数据处理, 后端服务更多的用Mybatis自动生成工具来生成DAO层SQL代码,然后在Service层进行多次调用, 一是因为业务逻辑不复杂, 二是因为性能要求也没那么高。不过, 总感觉SQL这块如果不掌握的话, 可能后面发展会受限。好了, 废话不多说, 我们开始一段时间的 SQL 之旅吧。</p>
+<a id="more"></a>
+
+<h4 id="实验数据"><a href="#实验数据" class="headerlink" title="实验数据"></a>实验数据</h4><p>表1. user:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/user.png"></p>
+<p>表2. job:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/job.png"></p>
+<p>表3. sports_duration:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/sports_duration.png"></p>
+<h4 id="1-如何在MySQL中使用full-join"><a href="#1-如何在MySQL中使用full-join" class="headerlink" title="1. 如何在MySQL中使用full join?"></a>1. 如何在MySQL中使用full join?</h4><p>场景: 将上面的user 表和 job表 合成一张大表。</p>
+<p>full join 就是取两者的并集, 而MySQL中是不能使用full join 的, 下面来说下解决方法:<br>使用表user left join 表job, 然后 union all 表user right join 表job(其实也就是表job left join 表user)即可, union all 就是两者的并集。</p>
+<p>sql 如下:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, j.name <span class="keyword">as</span> jname, j.job <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">left</span> <span class="keyword">JOIN</span> job j <span class="keyword">on</span> u.<span class="string">`name`</span> = j.name</span><br><span class="line"><span class="keyword">UNION</span> <span class="keyword">all</span></span><br><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, j.name <span class="keyword">as</span> jname, j.job <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">right</span> <span class="keyword">JOIN</span> job j <span class="keyword">on</span> u.<span class="string">`name`</span> = j.name;</span><br></pre></td></tr></table></figure>
+<p>结果如下：<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/full_join.png"></p>
+<p>通过上图, 我们也可以很清楚的看到 left join 和 right join 后的效果。<br>user left join job 就是user 表作为主表, 将 job 表中与 user表有关联关系的数据作为补充, 详见 上图 left join 红框。<br>另外, 通过指定 where jname is null, 我们也可以取到 user 表中有而 job 表中不存在的用户。<br>right join 同理, 这里就不赘述了。</p>
+<h4 id="2-如何更新使用过滤条件中包括自身的表？"><a href="#2-如何更新使用过滤条件中包括自身的表？" class="headerlink" title="2. 如何更新使用过滤条件中包括自身的表？"></a>2. 如何更新使用过滤条件中包括自身的表？</h4><p>场景: 把同时存在于 user表 和 job表的记录的用户在user 表中的age 字段更新为30。<br>错误示例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> age=<span class="number">30</span> <span class="keyword">where</span> user.name <span class="keyword">in</span> (<span class="keyword">select</span> j.name <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">join</span> job j <span class="keyword">on</span> u.name=j.name);</span><br></pre></td></tr></table></figure>
+
+<p>报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">update user set age&#x3D;30 where user.name in (select j.name from user u join job j on u.name&#x3D;j.name)</span><br><span class="line">&gt; 1093 - You can&#39;t specify target table &#39;user&#39; for update in FROM clause</span><br></pre></td></tr></table></figure>
+<p>说明： MySQL 中不支持这样操作, 在 SQLServer 或者 Oracle中可以正常执行。 </p>
+<p>正确解法:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> u <span class="keyword">join</span> (<span class="keyword">select</span> j.name <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">join</span> job j <span class="keyword">on</span> u.name=j.name) j <span class="keyword">on</span> a.name=j.name <span class="keyword">set</span> u.age=<span class="number">30</span>;</span><br></pre></td></tr></table></figure>
+<p>更新结果如下:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/user_join_update.png"></p>
+<h4 id="3-如何使用-join-来优化子查询"><a href="#3-如何使用-join-来优化子查询" class="headerlink" title="3. 如何使用 join 来优化子查询?"></a>3. 如何使用 join 来优化子查询?</h4><p>先看下面这个带有子查询的sql:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, (<span class="keyword">select</span> job <span class="keyword">from</span> job <span class="keyword">where</span> job.name = u.name ) <span class="keyword">as</span> job <span class="keyword">from</span> <span class="keyword">user</span> u;</span><br></pre></td></tr></table></figure>
+
+<p>使用 join 优化:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, u.age, u.hobby, job <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">left</span> <span class="keyword">join</span> job j <span class="keyword">on</span> u.<span class="string">`name`</span> = j.<span class="string">`name`</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-使用join来优化聚合子查询"><a href="#4-使用join来优化聚合子查询" class="headerlink" title="4. 使用join来优化聚合子查询"></a>4. 使用join来优化聚合子查询</h4><p>场景: 找出user 表中三人, 各自运动时长最长的日期。新增表 sports_duration, duration 为运动时长, 单位: 分钟</p>
+<p>聚合子查询:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, s.day, s.duration <span class="keyword">from</span> <span class="keyword">user</span> u </span><br><span class="line"><span class="keyword">join</span> sports_duration s <span class="keyword">on</span> u.name=s.name </span><br><span class="line"><span class="keyword">where</span> s.duration=(</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">max</span>(c.duration) <span class="keyword">from</span> sports_duration c <span class="keyword">where</span> c.name=s.name</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>结果如下:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/max_duration.png"></p>
+<p>使用join优化后, 避免子查询:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, s.day, s.duration <span class="keyword">from</span> <span class="keyword">user</span> u </span><br><span class="line"><span class="keyword">join</span> sports_duration s <span class="keyword">on</span> u.name=s.name</span><br><span class="line"><span class="keyword">join</span> sports_duration c <span class="keyword">on</span> c.name=s.name </span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> u.name,s.day,s.duration</span><br><span class="line"><span class="keyword">having</span> s.duration=<span class="keyword">max</span>(c.duration);</span><br></pre></td></tr></table></figure>
+
+<p>返回的结果集是相同的。</p>
+<h4 id="5-如何实现分组选择"><a href="#5-如何实现分组选择" class="headerlink" title="5. 如何实现分组选择?"></a>5. 如何实现分组选择?</h4><p>在 Oracle、SQLServer、PgSQL中可以使用分区查询函数实现:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> tmp <span class="keyword">as</span> (</span><br><span class="line">    <span class="keyword">select</span> u.name, s.day, s.duration, row_number() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> u.name <span class="keyword">order</span> <span class="keyword">by</span> s.duration) cnt</span><br><span class="line">    <span class="keyword">from</span> <span class="keyword">user</span> u <span class="keyword">join</span> sports_duration s </span><br><span class="line">    <span class="keyword">on</span> u.name = s.name</span><br><span class="line">) <span class="keyword">select</span> * <span class="keyword">from</span> tmp <span class="keyword">where</span> cnt &lt;= <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+<p>但是, 在 MySQL中不支持。</p>
+<p>我们可以这样做:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, d.day, d.duration <span class="keyword">from</span> (</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span>, (<span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> sports_duration s <span class="keyword">where</span> s.name=c.name <span class="keyword">and</span> c.duration &lt;= s.duration) <span class="keyword">as</span> cnt <span class="keyword">from</span> sports_duration c</span><br><span class="line">    <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span></span><br><span class="line">) d <span class="keyword">join</span> <span class="keyword">user</span> u <span class="keyword">on</span> d.name = u.name</span><br><span class="line"><span class="keyword">where</span> cnt &lt;= <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+<p>结果如下:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/duration_top_2.png"></p>
+<p>下面我们来拆分这个SQL:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> u.name, d.day, d.duration, cnt <span class="keyword">from</span> (</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span>, (<span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> sports_duration s <span class="keyword">where</span> s.name=c.name <span class="keyword">and</span> c.duration &lt;= s.duration) <span class="keyword">as</span> cnt <span class="keyword">from</span> sports_duration c</span><br><span class="line">    <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span>, <span class="keyword">day</span>, <span class="keyword">duration</span></span><br><span class="line">) d <span class="keyword">join</span> <span class="keyword">user</span> u <span class="keyword">on</span> d.name = u.name;</span><br></pre></td></tr></table></figure>
+<p>去掉 where条件, 加上返回 cnt 字段, 就可以很清晰的看到明白这个sql的逻辑了, 结果如下图:<br><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/duration_top_cnt.png"><br>利用子查询中统计出用户运动耗时大于等于当前运动记录的条数, 然后再进行过滤。</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+    
+        <a href="/2020/10/03/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AD%A6%E4%B9%A0/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">正则表达式学习</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Matthew &copy; 2020 
+            <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" target="_blank" rel="noopener">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+</footer>
+
+        
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
