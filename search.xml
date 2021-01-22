@@ -408,4 +408,165 @@ table th:nth-of-type(2){
         <tag>MySQL</tag>
       </tags>
   </entry>
+  <entry>
+    <title>MySQL-索引</title>
+    <url>/2021/01/15/mysql-%E7%B4%A2%E5%BC%95/</url>
+    <content><![CDATA[<p>索引(在MySQL中也叫做”键(key)”) 是排好序的, 用于快速查找数据的一种数据结构。</p>
+<p>索引对于良好的性能非常关键。尤其是当表中的数据量越来越大时,索引对于性能的影响愈发重要。<br>在数据量较小且负载较低时, 不恰当的索引对性能的可能还不明显，但当数据量逐渐增大时, 性能则会急剧下降。</p>
+<a id="more"></a>
+
+<h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/mysql/mysql-index-category1.png" width="65%" alt="MySQL索引分类">
+
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4><ul>
+<li>Hash索引</li>
+<li></li>
+</ul>
+]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+        <tag>索引</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL-使用explain关键字</title>
+    <url>/2021/01/15/mysql-explain%E5%85%B3%E9%94%AE%E5%AD%97/</url>
+    <content><![CDATA[<a id="more"></a>]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Prestodb 日期和事件函数大全</title>
+    <url>/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/</url>
+    <content><![CDATA[<p>在工作中, 我们会用到很多日期和时间处理的函数, 这里我们为了方便, 来做一个使用总结, 不用每次都去查Google。</p>
+<a id="more"></a>
+
+<h3 id="日期和时间操作"><a href="#日期和时间操作" class="headerlink" title="日期和时间操作"></a>日期和时间操作</h3><table>
+<thead>
+<tr>
+<th>操作符</th>
+<th>示例</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>+</td>
+<td>date ‘2012-08-08’ + interval ‘2’ day</td>
+<td>2012-08-10</td>
+</tr>
+<tr>
+<td>+</td>
+<td>time ‘01:00’ + interval ‘3’ hour</td>
+<td>04:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>timestamp ‘2012-08-08 01:00’ + interval ‘29’ hour</td>
+<td>2012-08-09 06:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>timestamp ‘2012-10-31 01:00’ + interval ‘1’ month</td>
+<td>2012-11-30 01:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>interval ‘2’ day + interval ‘3’ hour</td>
+<td>2 03:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>interval ‘3’ year + interval ‘5’ month</td>
+<td>3-5</td>
+</tr>
+<tr>
+<td>-</td>
+<td>date ‘2012-08-08’ - interval ‘2’ day</td>
+<td>2012-08-06</td>
+</tr>
+<tr>
+<td>-</td>
+<td>time ‘01:00’ - interval ‘3’ hour</td>
+<td>22:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>timestamp ‘2012-08-08 01:00’ - interval ‘29’ hour</td>
+<td>2012-08-06 20:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>timestamp ‘2012-10-31 01:00’ - interval ‘1’ month</td>
+<td>2012-09-30 01:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>interval ‘2’ day - interval ‘3’ hour</td>
+<td>1 21:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>interval ‘3’ year - interval ‘5’ month</td>
+<td>2-7</td>
+</tr>
+</tbody></table>
+<h3 id="当前日期、时间函数"><a href="#当前日期、时间函数" class="headerlink" title="当前日期、时间函数"></a>当前日期、时间函数</h3><ul>
+<li><p>current_date -&gt; date<br>返回当前日期。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_date</span></span><br><span class="line"><span class="comment">--  2021-01-17</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>current_time -&gt; time<br>返回当前时间(含时区)。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_time</span></span><br><span class="line"><span class="comment">--  23:52:04.371 Asia/Shanghai</span></span><br><span class="line"><span class="comment">-- 这个结果看起来有点问题, 因为我执行该条命令的真实时间为 15:52:04.371 Asia/Shanghai</span></span><br><span class="line"><span class="comment">-- 可能是公司的Presto的时区设置有问题</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>current_timestamp -&gt; timestamp<br>返回当前的日期和时间(含时区)。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_timestamp</span></span><br><span class="line"><span class="comment">-- 2021-01-17 15:44:43.041 Asia/Shanghai</span></span><br><span class="line"><span class="comment">-- 和上面的比, 这条就正常了</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>current_timezone() -&gt; varchar<br>返回当前时区。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_timestamp</span></span><br><span class="line"><span class="comment">-- Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>now() -&gt; timestamp<br>返回当前的日期和时间(含时区)。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">now</span>()</span><br><span class="line"><span class="comment">-- 2021-01-17 15:44:43.041 Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>localtime -&gt; time<br>返回当前的时间</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">localtime</span></span><br><span class="line"><span class="comment">-- 23:52:04.371</span></span><br><span class="line"><span class="comment">-- 遇到了和 current_time 一样的问题</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>localtimestamp -&gt; timestamp<br>返回当前的日期和时间</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">localtimestamp</span></span><br><span class="line"><span class="comment">-- 2021-01-17 15:52:04.371</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="格式转换"><a href="#格式转换" class="headerlink" title="格式转换"></a>格式转换</h3><ul>
+<li>date(x) -&gt; date<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select date(&#39;2012-08-10&#39;)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>等价于 <code>CAST(x AS date)</code>。x 的两侧有空格 或者 x=’2012-8-10’ 都是可以正常转换的。</p>
+<h4 id="日期维度函数"><a href="#日期维度函数" class="headerlink" title="日期维度函数"></a>日期维度函数</h4><ol>
+<li><p>按年</p>
+</li>
+<li><p>按月</p>
+</li>
+<li><p>按季度</p>
+</li>
+<li><p>按周</p>
+</li>
+<li><p>按天</p>
+</li>
+</ol>
+<h3 id="时间函数"><a href="#时间函数" class="headerlink" title="时间函数"></a>时间函数</h3><h4 id="时间格式转换"><a href="#时间格式转换" class="headerlink" title="时间格式转换"></a>时间格式转换</h4><h4 id="时间加-减"><a href="#时间加-减" class="headerlink" title="时间加/减"></a>时间加/减</h4>]]></content>
+      <categories>
+        <category>函数大全</category>
+        <category>Prestodb</category>
+      </categories>
+      <tags>
+        <tag>Prestodb</tag>
+      </tags>
+  </entry>
 </search>

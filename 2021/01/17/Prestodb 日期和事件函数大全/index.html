@@ -3,20 +3,23 @@
 <head>
     <meta charset="utf-8">
     
-    <title>Categories | Matthew Blog</title>
+    <title>Prestodb 日期和事件函数大全 | Matthew Blog</title>
     
     
-        <meta name="keywords" content="Categories" />
+        <meta name="keywords" content="Prestodb" />
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Categories">
-<meta property="og:url" content="http://yoursite.com/categories/index.html">
+    <meta name="description" content="在工作中, 我们会用到很多日期和时间处理的函数, 这里我们为了方便, 来做一个使用总结, 不用每次都去查Google。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prestodb 日期和事件函数大全">
+<meta property="og:url" content="http://yoursite.com/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/index.html">
 <meta property="og:site_name" content="Matthew Blog">
+<meta property="og:description" content="在工作中, 我们会用到很多日期和时间处理的函数, 这里我们为了方便, 来做一个使用总结, 不用每次都去查Google。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-10-08T14:44:26.448Z">
-<meta property="article:modified_time" content="2020-10-08T14:44:26.448Z">
+<meta property="article:published_time" content="2021-01-17T07:02:45.000Z">
+<meta property="article:modified_time" content="2021-01-22T03:04:55.525Z">
 <meta property="article:author" content="Matthew">
+<meta property="article:tag" content="Prestodb">
 <meta name="twitter:card" content="summary">
     
 
@@ -194,20 +197,20 @@
                      </ul> 
                     </li> 
                     
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             函数大全
                         </a>
                          <ul class="unstyled" id="tree" > 
-                    <li class="directory">
+                    <li class="directory open">
                         <a href="#" data-role="directory">
-                            <i class="fa fa-folder"></i>
+                            <i class="fa fa-folder-open"></i>
                             &nbsp;
                             Prestodb
                         </a>
-                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">Prestodb 日期和事件函数大全</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" >  <li class="file active"><a href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">Prestodb 日期和事件函数大全</a></li>  </ul> 
                     </li> 
                      </ul> 
                     </li> 
@@ -327,16 +330,221 @@
     <div id="toTop" class="fa fa-angle-up"></div>
 </aside>
             
-            <section id="main"><section class="layout-wrap">
-    <div class="layout-title">
-        <span>Categories</span>
-    </div>
-    <div class="layout-wrap-inner list-categories">
+            <section id="main"><article id="post-Prestodb 日期和事件函数大全" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
         
-            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">函数大全</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/Prestodb/">Prestodb</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7/">工具</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7/IDEA/">IDEA</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/">MySQL</a><span class="category-list-count">3</span></li></ul></li></ul>
         
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">函数大全</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/Prestodb/">Prestodb</a>
     </div>
-</section></section>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Prestodb/" rel="tag">Prestodb</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">
+            <time datetime="2021-01-17T07:02:45.000Z" itemprop="datePublished">2021-01-17</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/Prestodb 日期和事件函数大全.md' target="_blank" rel="noopener"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/Prestodb 日期和事件函数大全.md' target="_blank" rel="noopener"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/Prestodb 日期和事件函数大全.md' target="_blank" rel="noopener"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Prestodb 日期和事件函数大全
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#日期和时间操作"><span class="toc-number">1.</span> <span class="toc-text">日期和时间操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#当前日期、时间函数"><span class="toc-number">2.</span> <span class="toc-text">当前日期、时间函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#格式转换"><span class="toc-number">3.</span> <span class="toc-text">格式转换</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#日期维度函数"><span class="toc-number">3.1.</span> <span class="toc-text">日期维度函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#时间函数"><span class="toc-number">4.</span> <span class="toc-text">时间函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#时间格式转换"><span class="toc-number">4.1.</span> <span class="toc-text">时间格式转换</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#时间加-减"><span class="toc-number">4.2.</span> <span class="toc-text">时间加&#x2F;减</span></a></li></ol></li></ol>
+                </div>
+            
+        
+        
+            <p>在工作中, 我们会用到很多日期和时间处理的函数, 这里我们为了方便, 来做一个使用总结, 不用每次都去查Google。</p>
+<a id="more"></a>
+
+<h3 id="日期和时间操作"><a href="#日期和时间操作" class="headerlink" title="日期和时间操作"></a>日期和时间操作</h3><table>
+<thead>
+<tr>
+<th>操作符</th>
+<th>示例</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>+</td>
+<td>date ‘2012-08-08’ + interval ‘2’ day</td>
+<td>2012-08-10</td>
+</tr>
+<tr>
+<td>+</td>
+<td>time ‘01:00’ + interval ‘3’ hour</td>
+<td>04:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>timestamp ‘2012-08-08 01:00’ + interval ‘29’ hour</td>
+<td>2012-08-09 06:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>timestamp ‘2012-10-31 01:00’ + interval ‘1’ month</td>
+<td>2012-11-30 01:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>interval ‘2’ day + interval ‘3’ hour</td>
+<td>2 03:00:00.000</td>
+</tr>
+<tr>
+<td>+</td>
+<td>interval ‘3’ year + interval ‘5’ month</td>
+<td>3-5</td>
+</tr>
+<tr>
+<td>-</td>
+<td>date ‘2012-08-08’ - interval ‘2’ day</td>
+<td>2012-08-06</td>
+</tr>
+<tr>
+<td>-</td>
+<td>time ‘01:00’ - interval ‘3’ hour</td>
+<td>22:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>timestamp ‘2012-08-08 01:00’ - interval ‘29’ hour</td>
+<td>2012-08-06 20:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>timestamp ‘2012-10-31 01:00’ - interval ‘1’ month</td>
+<td>2012-09-30 01:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>interval ‘2’ day - interval ‘3’ hour</td>
+<td>1 21:00:00.000</td>
+</tr>
+<tr>
+<td>-</td>
+<td>interval ‘3’ year - interval ‘5’ month</td>
+<td>2-7</td>
+</tr>
+</tbody></table>
+<h3 id="当前日期、时间函数"><a href="#当前日期、时间函数" class="headerlink" title="当前日期、时间函数"></a>当前日期、时间函数</h3><ul>
+<li><p>current_date -&gt; date<br>返回当前日期。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_date</span></span><br><span class="line"><span class="comment">--  2021-01-17</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>current_time -&gt; time<br>返回当前时间(含时区)。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_time</span></span><br><span class="line"><span class="comment">--  23:52:04.371 Asia/Shanghai</span></span><br><span class="line"><span class="comment">-- 这个结果看起来有点问题, 因为我执行该条命令的真实时间为 15:52:04.371 Asia/Shanghai</span></span><br><span class="line"><span class="comment">-- 可能是公司的Presto的时区设置有问题</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>current_timestamp -&gt; timestamp<br>返回当前的日期和时间(含时区)。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_timestamp</span></span><br><span class="line"><span class="comment">-- 2021-01-17 15:44:43.041 Asia/Shanghai</span></span><br><span class="line"><span class="comment">-- 和上面的比, 这条就正常了</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>current_timezone() -&gt; varchar<br>返回当前时区。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_timestamp</span></span><br><span class="line"><span class="comment">-- Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>now() -&gt; timestamp<br>返回当前的日期和时间(含时区)。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">now</span>()</span><br><span class="line"><span class="comment">-- 2021-01-17 15:44:43.041 Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>localtime -&gt; time<br>返回当前的时间</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">localtime</span></span><br><span class="line"><span class="comment">-- 23:52:04.371</span></span><br><span class="line"><span class="comment">-- 遇到了和 current_time 一样的问题</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>localtimestamp -&gt; timestamp<br>返回当前的日期和时间</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">localtimestamp</span></span><br><span class="line"><span class="comment">-- 2021-01-17 15:52:04.371</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="格式转换"><a href="#格式转换" class="headerlink" title="格式转换"></a>格式转换</h3><ul>
+<li>date(x) -&gt; date<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select date(&#39;2012-08-10&#39;)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>等价于 <code>CAST(x AS date)</code>。x 的两侧有空格 或者 x=’2012-8-10’ 都是可以正常转换的。</p>
+<h4 id="日期维度函数"><a href="#日期维度函数" class="headerlink" title="日期维度函数"></a>日期维度函数</h4><ol>
+<li><p>按年</p>
+</li>
+<li><p>按月</p>
+</li>
+<li><p>按季度</p>
+</li>
+<li><p>按周</p>
+</li>
+<li><p>按天</p>
+</li>
+</ol>
+<h3 id="时间函数"><a href="#时间函数" class="headerlink" title="时间函数"></a>时间函数</h3><h4 id="时间格式转换"><a href="#时间格式转换" class="headerlink" title="时间格式转换"></a>时间格式转换</h4><h4 id="时间加-减"><a href="#时间加-减" class="headerlink" title="时间加/减"></a>时间加/减</h4>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+    
+        <a href="/2021/01/15/mysql-%E7%B4%A2%E5%BC%95/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">MySQL-索引</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
         </div>
         <footer id="footer">
     <div class="outer">

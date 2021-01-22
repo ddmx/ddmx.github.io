@@ -196,6 +196,24 @@
                         <a href="#" data-role="directory">
                             <i class="fa fa-folder"></i>
                             &nbsp;
+                            函数大全
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Prestodb
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">Prestodb 日期和事件函数大全</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
                             工具
                         </a>
                          <ul class="unstyled" id="tree" > 
@@ -223,7 +241,7 @@
                             &nbsp;
                             MySQL
                         </a>
-                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2020/11/29/mysql-tips/">MySQL 小技巧</a></li>  </ul> 
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2020/11/29/mysql-tips/">MySQL 小技巧</a></li>  <li class="file"><a href="/2021/01/15/mysql-%E7%B4%A2%E5%BC%95/">MySQL-索引</a></li>  <li class="file"><a href="/2021/01/15/mysql-explain%E5%85%B3%E9%94%AE%E5%AD%97/">MySQL-使用explain关键字</a></li>  </ul> 
                     </li> 
                      </ul> 
                     </li> 
@@ -299,7 +317,7 @@
     <div class="widget-wrap">
         <h3 class="widget-title"><span>tags</span></h3>
         <div class="widget">
-            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Azkaban/" rel="tag">Azkaban</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDEA/" rel="tag">IDEA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%B6%E4%BB%96/" rel="tag">其他</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a><span class="tag-list-count">1</span></li></ul>
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Azkaban/" rel="tag">Azkaban</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDEA/" rel="tag">IDEA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Prestodb/" rel="tag">Prestodb</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%B6%E4%BB%96/" rel="tag">其他</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a><span class="tag-list-count">1</span></li></ul>
         </div>
     </div>
 
@@ -308,6 +326,248 @@
 </aside>
             
             <section id="main">
+        <article id="post-Prestodb 日期和事件函数大全" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">函数大全</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/Prestodb/">Prestodb</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Prestodb/" rel="tag">Prestodb</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">
+            <time datetime="2021-01-17T07:02:45.000Z" itemprop="datePublished">2021-01-17</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/Prestodb 日期和事件函数大全.md' target="_blank" rel="noopener"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/Prestodb 日期和事件函数大全.md' target="_blank" rel="noopener"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/Prestodb 日期和事件函数大全.md' target="_blank" rel="noopener"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">Prestodb 日期和事件函数大全</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p>在工作中, 我们会用到很多日期和时间处理的函数, 这里我们为了方便, 来做一个使用总结, 不用每次都去查Google。</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-mysql-索引" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/">MySQL</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/MySQL/" rel="tag">MySQL</a>, <a class="tag-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2021/01/15/mysql-%E7%B4%A2%E5%BC%95/">
+            <time datetime="2021-01-15T14:02:45.000Z" itemprop="datePublished">2021-01-15</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/mysql-索引.md' target="_blank" rel="noopener"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/mysql-索引.md' target="_blank" rel="noopener"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/mysql-索引.md' target="_blank" rel="noopener"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/2021/01/15/mysql-%E7%B4%A2%E5%BC%95/">MySQL-索引</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p>索引(在MySQL中也叫做”键(key)”) 是排好序的, 用于快速查找数据的一种数据结构。</p>
+<p>索引对于良好的性能非常关键。尤其是当表中的数据量越来越大时,索引对于性能的影响愈发重要。<br>在数据量较小且负载较低时, 不恰当的索引对性能的可能还不明显，但当数据量逐渐增大时, 性能则会急剧下降。</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/2021/01/15/mysql-%E7%B4%A2%E5%BC%95/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-mysql-explain关键字" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/">MySQL</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/MySQL/" rel="tag">MySQL</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2021/01/15/mysql-explain%E5%85%B3%E9%94%AE%E5%AD%97/">
+            <time datetime="2021-01-15T14:02:45.000Z" itemprop="datePublished">2021-01-15</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/mysql-explain关键字.md' target="_blank" rel="noopener"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/mysql-explain关键字.md' target="_blank" rel="noopener"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/mysql-explain关键字.md' target="_blank" rel="noopener"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/2021/01/15/mysql-explain%E5%85%B3%E9%94%AE%E5%AD%97/">MySQL-使用explain关键字</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                
+                    
+                    
+                
+            
+        
+        
+            <a id="more"></a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
         <article id="post-mysql-tips" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
@@ -584,7 +844,7 @@ table th:nth-of-type(2){
         <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            Matthew &copy; 2020 
+            Matthew &copy; 2021 
             <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank"></a>
             <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" target="_blank" rel="noopener">wikitten</a>
             
@@ -595,6 +855,7 @@ table th:nth-of-type(2){
             
         </div>
     </div>
+    <script type="text/javascript">document.write(unescape("%3Cspan id='cnzz_stat_icon_1279640132'%3E%3C/span%3E%3Cscript src='https://v1.cnzz.com/z_stat.php%3Fid%3D1279640132%26online%3D1%26show%3Dline' type='text/javascript'%3E%3C/script%3E"));</script>
 </footer>
 
         
