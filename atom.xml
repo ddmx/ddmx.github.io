@@ -6,7 +6,7 @@
   <link href="http://yoursite.com/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2021-01-22T03:04:55.525Z</updated>
+  <updated>2021-04-11T10:11:46.047Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Git 多次提交记录优化显示</title>
+    <link href="http://yoursite.com/2021/04/11/Git%20%E5%A4%9A%E6%AC%A1%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95%E4%BC%98%E5%8C%96%E6%98%BE%E7%A4%BA/"/>
+    <id>http://yoursite.com/2021/04/11/Git%20%E5%A4%9A%E6%AC%A1%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95%E4%BC%98%E5%8C%96%E6%98%BE%E7%A4%BA/</id>
+    <published>2021-04-11T08:27:45.000Z</published>
+    <updated>2021-04-11T10:11:46.047Z</updated>
+    
+    <content type="html"><![CDATA[<p>写这篇文章的目的, 是为了记录下如何解决Git多次提交记录聚合展示的方法。因为一个功能点的开发包括开发,测试等多个环节, 难免就会导致提交很多次commit, 而为了提交记录看起来更清晰, 且和功能点更好对应, 把这些相同目的的commit合并为一个就显得比较有意义了。当然, 也顺便治一下自己的强迫症。</p><a id="more"></a><h4 id="查看提交记录"><a href="#查看提交记录" class="headerlink" title="查看提交记录"></a>查看提交记录</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> --pretty=oneline</span><br></pre></td></tr></table></figure><h4 id="选取要合并的commit"><a href="#选取要合并的commit" class="headerlink" title="选取要合并的commit"></a>选取要合并的commit</h4><p>执行完上面的命令, 我们看到以下的提交记录:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fea1d93fa84e112c2b7314db66b5a66a962e2166 fix: 修复模块xxxbug: bbb</span><br><span class="line">98f2a41ea1bd6c0d5843f49480fd7d371f106b13 fix: 修复模块xxxbug: aaa </span><br><span class="line">7ab4333e2e26b9109cb580bff88de4b0373976b3 feat: 新增功能模块xxx</span><br><span class="line">57654061b4a3808e04f5a4f6300b78c94048be23 fix: 线上接口超时bug修复</span><br></pre></td></tr></table></figure><p>假设我们是想 fea1d93f、98f2a41e、7ab4333e 这3个commit, 作为新的模块xxx的提交记录。此处, 我们选取57654061作为聚合点(该commit之前的都需要被合并)。</p><h4 id="合并commit"><a href="#合并commit" class="headerlink" title="合并commit"></a>合并commit</h4><p>执行以下命令:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase -i 57654061</span><br></pre></td></tr></table></figure><p>此处的commit 57654061 为 7ab4333e 的前一次提交。</p><p>执行完上述命令后, 会出现以下一个commit列表, 我们需要从中选取要保留的commit:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pick 7ab4333e feat: 新增功能模块xxx</span><br><span class="line">pick 98f2a41e fix: 修复模块xxxbug: aaa</span><br><span class="line">pick fea1d93f fix: 修复模块xxxbug: bbb</span><br><span class="line"></span><br><span class="line"># ...</span><br></pre></td></tr></table></figure><p>编辑为下面所示, 将选取commit以外的行前面的<code>pick</code>改为<code>squash</code> or <code>s</code>, 然后输入: <code>wq</code> 保存退出。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pick 7ab4333e feat: 新增功能模块xxx</span><br><span class="line">s 98f2a41e fix: 修复模块xxxbug: aaa</span><br><span class="line">s fea1d93f fix: 修复模块xxxbug: bbb</span><br><span class="line"></span><br><span class="line"># ...</span><br></pre></td></tr></table></figure><p>若无冲突 or 冲突已 fix, 会出现一个<code>commit message</code>的编辑页面, 修改<code>commit message</code>, 然后输入: <code>wq</code> 保存退出。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">feat: 新增功能模块xxx</span><br><span class="line"></span><br><span class="line"># 修复模块xxxbug: aaa</span><br><span class="line"># 修复模块xxxbug: bbb</span><br></pre></td></tr></table></figure><p>若存在冲突, 则需要解决, 保留最新的记录, 输入命令:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git rebase --<span class="built_in">continue</span></span><br></pre></td></tr></table></figure><p>若想放弃此次<code>commit</code>合并, 输入命令:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase --abort</span><br></pre></td></tr></table></figure><h4 id="强制提交"><a href="#强制提交" class="headerlink" title="强制提交"></a>强制提交</h4><p><code>commit massage</code> 修改完成后, 提交<code>commit</code>, 输入<code>git push -f</code> or <code>git push --force</code>即可。</p><blockquote><p>注意: </p><ol><li>上述操作的前提是在非master分支, 建议开发新feature的时候在非master分支, 最终上线才合并到master</li><li>如果是master分支, 即便有master分支的提交权限, 也是不允许直接强制提交的(Gitlab), 需要去Git Repository的设置中(Protected Branches)开启</li></ol></blockquote>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;写这篇文章的目的, 是为了记录下如何解决Git多次提交记录聚合展示的方法。因为一个功能点的开发包括开发,测试等多个环节, 难免就会导致提交很多次commit, 而为了提交记录看起来更清晰, 且和功能点更好对应, 把这些相同目的的commit合并为一个就显得比较有意义了。当然, 也顺便治一下自己的强迫症。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="工具" scheme="http://yoursite.com/categories/%E5%B7%A5%E5%85%B7/"/>
+    
+    <category term="Git" scheme="http://yoursite.com/categories/%E5%B7%A5%E5%85%B7/Git/"/>
+    
+    
+    <category term="Git" scheme="http://yoursite.com/tags/Git/"/>
+    
+  </entry>
   
   <entry>
     <title>Prestodb 日期和事件函数大全</title>
@@ -66,19 +89,16 @@
   </entry>
   
   <entry>
-    <title>MySQL-使用explain关键字</title>
+    <title>1. MySQL-explain使用说明</title>
     <link href="http://yoursite.com/2021/01/15/mysql-explain%E5%85%B3%E9%94%AE%E5%AD%97/"/>
     <id>http://yoursite.com/2021/01/15/mysql-explain%E5%85%B3%E9%94%AE%E5%AD%97/</id>
     <published>2021-01-15T14:02:45.000Z</published>
-    <updated>2021-01-15T14:06:18.079Z</updated>
+    <updated>2021-01-25T02:01:36.314Z</updated>
     
-    <content type="html"><![CDATA[<a id="more"></a>]]></content>
+    <content type="html"><![CDATA[<p><code>explain</code>可以查看SQL语句的执行计划。下面, 我们就对<code>explain</code>查询出来的字段做一些使用说明。<br>返回的信息有10列, 分别是:</p><a id="more"></a><ul><li>id</li><li>select_type</li><li>table</li><li>type</li><li>possible_keys</li><li>key</li><li>key_len</li><li>ref</li><li>rows</li><li>filtered</li><li>Extra</li></ul><h4 id="id"><a href="#id" class="headerlink" title="id"></a>id</h4><p>id表示查询执行的顺序, 有以下规则:</p><ul><li>id相同时，由上到下执行</li><li>id不同时，id大的先执行</li><li>id号每个号码，表示一趟独立的查询。一个 sql 的查询趟数越少越好。</li></ul><ol start="2"><li>select_type 列:</li></ol><table><thead><tr><th>值</th><th>含义</th></tr></thead><tbody><tr><td>SIMPLE</td><td>不包含子查询或是UNION操作的查询</td></tr><tr><td>PRIMARY</td><td>查询中如果包含任何子查询,那么最外层的查询则被标记为PRIMARY</td></tr><tr><td>SUBQUERY</td><td>在SELECT或WHERE列表中包含了子查询</td></tr><tr><td>DEPENDENT SUBQUERY</td><td>依赖外部结果的子查询</td></tr><tr><td>DERIVED</td><td>出现在FROM子句中的子查询会被标记为DERIVED(衍生),MySQL会递归执行这些子查询,把结果放在临时表里</td></tr><tr><td>UNION</td><td>若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在FROM子句的子查询中，外层的SELECT将被标记为: DERIVED</td></tr><tr><td>DEPENDENT UNION</td><td>当union作为子查询时,第二或是第二个后的查询的select_type值</td></tr><tr><td>UNION RESULT</td><td>从UNION表获取结果的SELECT</td></tr></tbody></table><p>衍生表的优化: <a href="https://dev.mysql.com/doc/refman/5.6/en/derived-table-optimization.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.6/en/derived-table-optimization.html</a></p><ul><li>table 列: 指明是从哪个表中获取数据</li></ul><table><thead><tr><th>值</th><th>含义</th></tr></thead><tbody><tr><td><code>&lt;unionM,N&gt;</code></td><td>由ID为M,N查询union产生的结果集</td></tr><tr><td><code>&lt;derived N&gt;/&lt;subquery N&gt;</code></td><td>由ID为N的查询产生的结果集</td></tr></tbody></table><ul><li><p>partitions 列: 对于分区表, 显示查询的分区ID; 非分区表, 显示为NULL</p></li><li><p>type 列: 访问类型, 表示找到所查询数据的方法。性能由好到差:</p></li></ul><table><thead><tr><th>值</th><th>含义</th></tr></thead><tbody><tr><td>system/const</td><td>表中有且只有一个匹配的行时使用, 如对主键(primary key)或是唯一索引(unique index)的查询, 这是效率最高的连接方式。system是const的一种特殊情况,既表本身只有一行数据的情况。</td></tr><tr><td>eq_ref</td><td>根据唯一索引或者主键查找, 对于每个索引键, 表中只有一条记录与之匹配。</td></tr><tr><td>ref</td><td>非唯一索引查找, 返回匹配某个单独值的所有行。</td></tr><tr><td>ref_or_null</td><td>类似于ref类型的查询,但是附加了对NULL值列的查询</td></tr><tr><td>index_merge</td><td>该连接查询表示使用了索引合并优化方法。</td></tr><tr><td>range</td><td>索引范围扫描, 常见于between、&gt;、&lt; 这样的查询条件</td></tr><tr><td>index</td><td>full index scan 全索引扫描, 同ALL的区别是, 遍历的是索引树</td></tr><tr><td>all</td><td>full table scan 全表扫描, 这是效率最差的连接方式</td></tr></tbody></table><p>system<br><img src="./images/mysql-type-system.png" alt="avatar"></p><p>const<br><img src="./images/mysql-type-const.png" alt="avatar"></p><p>eq_ref<br><img src="./images/mysql-type-eq_ref.png" alt="avatar"></p><p>ref<br><img src="./images/mysql-type-ref.png" alt="avatar"></p><p>ref_or_null<br><img src="./images/mysql-type-ref-or-null.png" alt="avatar"></p><p>index_merge<br><img src="./images/mysql-type-indexMerge.png" alt="avatar"></p><p>range<br><img src="./images/mysql-type-range.png" alt="avatar"></p><p>index<br><img src="./images/mysql-type-index.png" alt="avatar"></p><p>all<br><img src="./images/mysql-type-all.png" alt="avatar"></p><ul><li>possible_keys: 表示此次查询中可能使用的索引。</li><li>key: 表示实际在此次查询中使用的索引。</li><li>key_len: 表示实际使用的索引的最大长度。复合索引可能为部分列(根据查询条件)长度之和。该值越小越好。</li></ul><blockquote><p>如何计算key_len</p></blockquote><pre><code>1. 先看索引上字段的类型+长度比如 int=4 ; varchar(20) =20 ; char(20) =20 2. 如果是 varchar 或者 char 这种字符串字段，视字符集要乘不同的值，比如 utf-8 3. varchar 这种动态字符串要加 2 个字节4. 允许为空的字段要加 1 个字节</code></pre><ul><li>ref: 表示哪些列或常量被用于索引查找, 即连接查询的条件。</li><li>rows: 根据统计信息预估的扫描的行数</li><li>filtered: 表示返回结果的行数占需读取行数的百分比, 该值越高, 说明性能越好。</li><li>extra: 表示查询的其他信息:</li></ul><table><thead><tr><th>值</th><th>含义</th></tr></thead><tbody><tr><td>Distinct</td><td>优化distinct操作,在找到第一匹配的元组后即停止找同样值的动作</td></tr><tr><td>Not exists</td><td>使用not exists来优化查询</td></tr><tr><td>Using filesort</td><td>说明MySQL会对数据使用一个外部的索引排序,而不是按照表内的索引顺序进行读取。MySQL无法利用索引完成的排序操作称为”文件排序”</td></tr><tr><td>Using temporary</td><td>MySQL需要使用临时表来处理查询, 常见于order by,sub_query和group by</td></tr><tr><td>Using index</td><td>使用覆盖索引(Covering index)来进行查询，避免访问表的数据行。如果同时出现Using where，表明索引被用来执行索引键值的查找;如果没有Using where，表明索引用来读取数据而非执行查找动作。</td></tr><tr><td>Using where</td><td>使用where条件来过滤数据</td></tr><tr><td>Using join buffer</td><td>使用了连接缓存</td></tr><tr><td>impossible where</td><td>where子句的值总是false，不能用来获取任何元组</td></tr><tr><td>select tables optimized away</td><td>直接通过索引来获得数据, 不用访问表(MyISAM引擎优化)</td></tr></tbody></table>]]></content>
     
     
-      
-      
-    <summary type="html">&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;</summary>
-      
+    <summary type="html">&lt;p&gt;&lt;code&gt;explain&lt;/code&gt;可以查看SQL语句的执行计划。下面, 我们就对&lt;code&gt;explain&lt;/code&gt;查询出来的字段做一些使用说明。&lt;br&gt;返回的信息有10列, 分别是:&lt;/p&gt;</summary>
     
     
     
