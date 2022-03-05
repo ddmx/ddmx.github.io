@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    
+    <title>分布式共识算法Raft | Matthew Blog</title>
+    
+    
+        <meta name="keywords" content="Raft,分布式算法" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Raft 诞生2013 年, 斯坦福大学的 Diego Ongaro 和 John Ousterhout 发表了 Raft 论文《In Search of an Understanding Consensus Algorithm》,但是这篇论文比较短小,只是简单介绍了一下原理,对一些实现细节部分没有提及。更详细的论文是 Diego Ongaro 的博士论文《CONSENSUS: BRIDGING">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式共识算法Raft">
+<meta property="og:url" content="http://yoursite.com/2022/03/05/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95-Raft/index.html">
+<meta property="og:site_name" content="Matthew Blog">
+<meta property="og:description" content="Raft 诞生2013 年, 斯坦福大学的 Diego Ongaro 和 John Ousterhout 发表了 Raft 论文《In Search of an Understanding Consensus Algorithm》,但是这篇论文比较短小,只是简单介绍了一下原理,对一些实现细节部分没有提及。更详细的论文是 Diego Ongaro 的博士论文《CONSENSUS: BRIDGING">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA%E7%9A%84%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305152805885.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305170317787.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E4%BB%BB%E6%9C%9F.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E6%8A%95%E7%A5%A8%E9%99%90%E5%88%B6%E6%B5%81%E7%A8%8B.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/Leader%E5%88%9D%E6%AC%A1%E9%80%89%E4%B8%BE.gif">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/Leader%E5%86%8D%E6%AC%A1%E9%80%89%E4%B8%BE-Leader%E4%B8%8B%E7%BA%BF.gif">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6-%E6%AD%A3%E5%B8%B8%E5%A4%8D%E5%88%B6.gif">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305163810532.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6-%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305170726211.png">
+<meta property="og:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/Leader%E5%8F%AA%E5%85%81%E8%AE%B8%E6%8F%90%E4%BA%A4%E8%87%AA%E5%B7%B1%E4%BB%BB%E6%9C%9F%E5%86%85%E7%9A%84%E6%97%A5%E5%BF%97.png">
+<meta property="article:published_time" content="2022-03-05T03:51:00.000Z">
+<meta property="article:modified_time" content="2022-03-05T09:47:45.930Z">
+<meta property="article:author" content="Matthew">
+<meta property="article:tag" content="Raft">
+<meta property="article:tag" content="分布式算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA%E7%9A%84%E7%BB%93%E6%9E%84.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="Matthew Blog" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/favicon.ico" />
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/open-sans/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+<script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    
+<script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Matthew Blog</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/tags">标签</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            其他
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            正则表达式
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2020/10/03/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AD%A6%E4%B9%A0/">正则表达式学习</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            函数大全
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Prestodb
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2021/01/17/Prestodb%20%E6%97%A5%E6%9C%9F%E5%92%8C%E4%BA%8B%E4%BB%B6%E5%87%BD%E6%95%B0%E5%A4%A7%E5%85%A8/">Prestodb 日期和事件函数大全</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            分布式算法
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Raft
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file active"><a href="/2022/03/05/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95-Raft/">分布式共识算法Raft</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            工具
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Git
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2021/04/11/Git%20%E5%A4%9A%E6%AC%A1%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95%E4%BC%98%E5%8C%96%E6%98%BE%E7%A4%BA/">Git 多次提交记录优化显示</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            IDEA
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2020/05/23/Azkaban-1.%E6%90%AD%E5%BB%BAAzkaban%E6%BA%90%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%8E%AF%E5%A2%83/">Azkaban-1.搭建Azkaban源代码阅读环境</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            数据库
+                        </a>
+                         <ul class="unstyled" id="tree" > 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            MySQL
+                        </a>
+                         <ul class="unstyled" id="tree" >  <li class="file"><a href="/2020/11/29/mysql-tips/">MySQL 小技巧</a></li>  <li class="file"><a href="/2021/01/15/mysql-%E7%B4%A2%E5%BC%95/">MySQL-索引</a></li>  <li class="file"><a href="/2021/01/15/mysql-explain%E5%85%B3%E9%94%AE%E5%AD%97/">1. MySQL-explain使用说明</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                     </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>tags</span></h3>
+        <div class="widget">
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Azkaban/" rel="tag">Azkaban</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDEA/" rel="tag">IDEA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Prestodb/" rel="tag">Prestodb</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%B6%E4%BB%96/" rel="tag">其他</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%AE%97%E6%B3%95/" rel="tag">分布式算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-分布式共识算法-Raft" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E7%AE%97%E6%B3%95/">分布式算法</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E7%AE%97%E6%B3%95/Raft/">Raft</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Raft/" rel="tag">Raft</a>, <a class="tag-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%AE%97%E6%B3%95/" rel="tag">分布式算法</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2022/03/05/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95-Raft/">
+            <time datetime="2022-03-05T03:51:00.000Z" itemprop="datePublished">2022-03-05</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/raw/writing/source/_posts/分布式共识算法-Raft.md' target="_blank" rel="noopener"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/edit/writing/source/_posts/分布式共识算法-Raft.md' target="_blank" rel="noopener"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a href='https://github.com/zthxxx/Wiki-site/commits/writing/source/_posts/分布式共识算法-Raft.md' target="_blank" rel="noopener"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            分布式共识算法Raft
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Raft-诞生"><span class="toc-number">1.</span> <span class="toc-text">Raft 诞生</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基础概念"><span class="toc-number">2.</span> <span class="toc-text">基础概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#共识-amp-一致性"><span class="toc-number">2.1.</span> <span class="toc-text">共识 &amp; 一致性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#拜占庭问题"><span class="toc-number">2.2.</span> <span class="toc-text">拜占庭问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#复制机状态机"><span class="toc-number">2.3.</span> <span class="toc-text">复制机状态机</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Raft-算法基础"><span class="toc-number">3.</span> <span class="toc-text">Raft 算法基础</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#领导者选举"><span class="toc-number">3.1.</span> <span class="toc-text">领导者选举</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#节点状态"><span class="toc-number">3.1.1.</span> <span class="toc-text">节点状态</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#任期-Term"><span class="toc-number">3.1.2.</span> <span class="toc-text">任期(Term)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#选举过程"><span class="toc-number">3.1.3.</span> <span class="toc-text">选举过程</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#日志复制"><span class="toc-number">3.2.</span> <span class="toc-text">日志复制</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#正常复制"><span class="toc-number">3.2.1.</span> <span class="toc-text">正常复制</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#日志冲突处理"><span class="toc-number">3.2.2.</span> <span class="toc-text">日志冲突处理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全性保证"><span class="toc-number">4.</span> <span class="toc-text">安全性保证</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#选举限制"><span class="toc-number">4.1.</span> <span class="toc-text">选举限制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Leader-只允许提交自己任期内的日志"><span class="toc-number">4.2.</span> <span class="toc-text">Leader 只允许提交自己任期内的日志</span></a></li></ol></li></ol>
+                </div>
+            
+        
+        
+            <h3 id="Raft-诞生"><a href="#Raft-诞生" class="headerlink" title="Raft 诞生"></a>Raft 诞生</h3><p>2013 年, 斯坦福大学的 Diego Ongaro 和 John Ousterhout 发表了 Raft 论文<a href="https://web.stanford.edu/~ouster/cgi-bin/papers/raft-atc14.pdf" target="_blank" rel="noopener">《In Search of an Understanding Consensus Algorithm》</a>,但是这篇论文比较短小,只是简单介绍了一下原理,对一些实现细节部分没有提及。更详细的论文是 Diego Ongaro 的博士论文<a href="https://link.juejin.cn/?target=http%3A%2F%2Fwcl.cs.rpi.edu%2Fpilots%2Flibrary%2Fpapers%2Fconsensus%2FRAFTOngaroPhD.pdf">《CONSENSUS: BRIDGING THEORY AND PRACTICE》</a>。<code>Raft</code>的产生就是为了代替 <code>Paxos</code>, 毕竟 <code>Paxos</code>算法自 1990 年诞生以来，就一直被诟病难以理解,这也导致了后面业界很多基于<code>Paxos</code>的实现都是”Paxos-like”实现。</p>
+<a id="more"></a>
+
+<h3 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h3><h4 id="共识-amp-一致性"><a href="#共识-amp-一致性" class="headerlink" title="共识 &amp; 一致性"></a>共识 &amp; 一致性</h4><p>共识（Consensus）很多时候会与一致性（Consistency）放在一起讨论。严谨地讲，两者的含义并不完全相同。一致性的含义比共识宽泛，在不同场景（基于事务的数据库、分布式系统等）下意义不同。具体到分布式系统场景下，一致性指的是多个副本对外呈现的状态。如前面提到的顺序一致性、线性一致性，描述了多节点对数据状态的共同维护能力。而共识，则特指在分布式系统中多个节点之间对某个事情（例如多个事务请求，先执行谁？）达成一致观点的过程。因此，达成某种共识并不意味着就保障了一致性。</p>
+<h4 id="拜占庭问题"><a href="#拜占庭问题" class="headerlink" title="拜占庭问题"></a>拜占庭问题</h4><p>拜占庭问题（Byzantine Problem）又叫拜占庭将军（Byzantine Generals Problem）问题，讨论的是在少数节点有可能作恶（消息可能被伪造）的场景下，如何达成共识问题。 Raft 集群内的节点都对选举出的 Leader 采取信任, 因此, Raft 算法并不是一种拜占庭容错算法。</p>
+<h4 id="复制机状态机"><a href="#复制机状态机" class="headerlink" title="复制机状态机"></a>复制机状态机</h4><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA%E7%9A%84%E7%BB%93%E6%9E%84.png" alt="复制状态机的结构" style="zoom:90%;" />
+
+<p>上面是复制状态机架构图。共识算法通常出现在复制状态机的环境中, 也就是上图的 <code>Consensus Module</code>, 它管理着来自客户端的<code>状态机指令</code>的复制日志(Log)。 状态机(State Machine)处理来自日志(Log)的相同指令序列，因此它们产生相同的输出。</p>
+<h3 id="Raft-算法基础"><a href="#Raft-算法基础" class="headerlink" title="Raft 算法基础"></a>Raft 算法基础</h3><p>为了让 Raft 算法更好被人理解, Raft 设计者将一致性问题分解成了三个相对独立的子问题：</p>
+<ul>
+<li>领导者选举：启动集群时或现有领导者异常时必须选出新的领导者。</li>
+<li>日志复制：领导者接收来自客户端的日志条目，并在整个集群中复制它们，迫使其他节点的日志与自己的一致。</li>
+<li>安全性：Raft 的安全属性的关键是状态机安全性属性：如果任一个节点已将特定的日志条目应用于其状态机，则其他节点都不可以对同一日志索引应用不同的指令。Raft 通过选举机制的额外限制以及 Leader 日志提交的任期限制来保证这一特性。</li>
+</ul>
+<h4 id="领导者选举"><a href="#领导者选举" class="headerlink" title="领导者选举"></a>领导者选举</h4><h5 id="节点状态"><a href="#节点状态" class="headerlink" title="节点状态"></a>节点状态</h5><p>集群中的节点主要有以下三者状态:</p>
+<ul>
+<li>Leader (领导者): 处理与客户端的交互和与 Follower 的日志复制等，正常情况下只有一个 Leader</li>
+<li>Follower (追随者): 被动从 Leader 同步日志，同时也会在 Leader 超时后转变为 Candidate 参与竞选，正常情况<br>下集群中除了 Leader 之外都是 Follower</li>
+<li>Candidate (候选者): 在竞选期间参与竞选</li>
+</ul>
+<p>不同状态的节点之间会发生下图所示的一些变化:</p>
+<p><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305152805885.png" alt="image-20220305152805885"></p>
+<p>节点的初始状态都是 Follower, 当节点超时(150 ~ 300 ms, 随机), 它会成为 Candidate, 开始竞选 Leader, 当得到大多数选票时, Candidate 会变成 Leader, 否则, 所有节点会再次进入倒计时状态, 重复这个过程, 直到选出 Leader。Leader 选出后, 会周期性地向其他节点发送心跳请求, 避免新的 Leader 产生。</p>
+<p>由 Candidate 发往其他节点的请求投票 RPC(<code>RequestVote RPC</code>) 的定义如下:</p>
+<p><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305170317787.png" alt="image-20220305170317787"></p>
+<h5 id="任期-Term"><a href="#任期-Term" class="headerlink" title="任期(Term)"></a>任期(Term)</h5><p>Leader 的选举引出了一个新的概念——任期（Term）。</p>
+<p><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E4%BB%BB%E6%9C%9F.png" alt="任期"></p>
+<ul>
+<li>时间被划分成一个个的任期，任期用连续单调递增的整数标记，每个任期开始都是一次选举</li>
+<li>在选举成功后，Leader 会管理整个集群直到任期结束 (一个任期最多只会产生一个 Leader)</li>
+<li>有时候选举会失败，那么这个任期就会没有 Leader 而结束, 如上图的 t3</li>
+<li>当服务器之间通信的时候会交换当前任期号；如果一个服务器的当前任期号比其他的小，那么他会更新自己的编号到较大的编号值。如果 Leader 或者 Candidate 发现自己的任期号过期了，那么他会立即恢复成 Follower。如果一个节点接收到一个包含过期的任期号的请求，那么他会直接拒绝这个请求。</li>
+</ul>
+<h5 id="选举过程"><a href="#选举过程" class="headerlink" title="选举过程"></a>选举过程</h5><p>要开始一次选举过程, Follower 要先增加自己当前的任期号(Term)并且转换到 Candidate 状态。他会先给自己投一票, 然后并行的向集群中的其他服务器节点发送拉票请求。其他节点在收到 Candidate 发送的拉票请求后, 会根据以下规则(Leader 选举限制)判定是同意还是反对，见下图:</p>
+<img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E6%8A%95%E7%A5%A8%E9%99%90%E5%88%B6%E6%B5%81%E7%A8%8B.png" alt="投票限制流程" style="zoom:50%;" />
+
+<p>其他节点在收到 Candidate 的拉票请求后的判定逻辑:</p>
+<ol>
+<li>如果当前节点已经给其他节点(根据 candidateId 判定, 也可以是自己)投过票, 则反对</li>
+<li>如果 Candidate 的任期(Term)比当前节点的任期小, 则反对, 并将 Candidate 的任期设置为当前节点的任期</li>
+<li>如果 Candidate 的 lastLogTerm(上一条日志的任期)比当前节点上一条日志的任期小, 则反对</li>
+<li>如果 Candidate 的 lastLogIndex(上一条日志的索引)比当前节点上一条日志的索引小, 则反对</li>
+<li>否则, 当前节点则投票给 Candidate，当前任期内, 不会再投票给其他的 Candidate</li>
+</ol>
+<p>选举的动态图如下，初次选举:</p>
+<img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/Leader%E5%88%9D%E6%AC%A1%E9%80%89%E4%B8%BE.gif" alt="Leader初次选举" style="zoom:67%;" />
+
+<p>Leader 异常后, 重新选举:</p>
+<img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/Leader%E5%86%8D%E6%AC%A1%E9%80%89%E4%B8%BE-Leader%E4%B8%8B%E7%BA%BF.gif" alt="Leader再次选举-Leader下线" style="zoom:67%;" />
+
+<h4 id="日志复制"><a href="#日志复制" class="headerlink" title="日志复制"></a>日志复制</h4><h5 id="正常复制"><a href="#正常复制" class="headerlink" title="正常复制"></a>正常复制</h5><p>流程如下图:</p>
+<img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6-%E6%AD%A3%E5%B8%B8%E5%A4%8D%E5%88%B6.gif" alt="日志复制-正常复制" style="zoom:67%;" />
+
+<p>以 SET 5 为例, 日志复制的流程如下图所示:</p>
+<img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305163810532.png" alt="image-20220305163810532" style="zoom: 50%;" />
+
+<p>在第一次由 Leader 复制到其他节点时, 并不会立即提交。Leader 提交日志条目的条件是该条目在大多数节点上已经存在。</p>
+<h5 id="日志冲突处理"><a href="#日志冲突处理" class="headerlink" title="日志冲突处理"></a>日志冲突处理</h5><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6-%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3.png" alt="日志复制-冲突解决" style="zoom: 67%;" />
+
+<p>当一个 Leader 成功当选时:</p>
+<ul>
+<li>Follower 可能会缺少一些日志条目（a-b）</li>
+<li>可能会有一些未被提交的日志条目（c-d）</li>
+<li>或者两种情况都存在（e-f）</li>
+</ul>
+<p>在 Raft 算法中，Leader 是通过强制 Follower 直接复制它的日志来处理不一致问题的。这意味着在 Follower 中冲突的日志条目会被 Leader 的日志所覆盖。</p>
+<p>要使得 Follower 的日志进入和自己一致的状态，Leader 必须找到最后两者达成一致的地方，然后删除从那个点之后的所有日志条目，发送自己的日志给 Follower。所有的这些操作都在进行<code>AppendEntries RPC</code>(附加日志条目的 RPC 请求) 的一致性检查时完成。Leader 针对每一个 Follower 维护了一个 nextIndex，这表示下一个需要发送给 Follower 的日志条目的索引地址。当一个 Leader 刚获得权力的时候，他初始化所有的 nextIndex 值为自己的最后一条日志的 index 加 1（上图中的 11）。如果一个 Follower 的日志和 Leader 不一致，那么在下一次的<code>AppendEntries RPC</code> 时的一致性检查就会失败。在被 Follower 拒绝之后，Leader 就会减小 nextIndex 值并进行重试。最终 nextIndex 会在某个位置使得 Leader 和 Follower 的日志达成一致。当这种情况发生，<code>AppendEntries RPC</code> 就会成功，这时就会把 Follower 冲突的日志条目全部删除并且加上 Leader 的日志。一旦<code>AppendEntries RPC</code> 成功，那么 Follower 的日志就会和 Leader 保持一致，并且在接下来的任期里一直继续保持。</p>
+<p>在 Leader 发现它与 Follower 的日志匹配位置之前，Leader 可以发送不带任何条目（例如心跳）的<code>AppendEntries RPC</code> 以节省带宽。 然后，一旦 matchIndex(其他节点和 Leader 日志一致的索引位置) 恰好比 nextIndex 小 1，则 Leader 应开始发送实际的日志条目。</p>
+<p>Leader 在复制日志时的<code>AppendEntries RPC</code> 请求定义如下:</p>
+<img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/image-20220305170726211.png" alt="image-20220305170726211"  />
+
+<h3 id="安全性保证"><a href="#安全性保证" class="headerlink" title="安全性保证"></a>安全性保证</h3><h4 id="选举限制"><a href="#选举限制" class="headerlink" title="选举限制"></a>选举限制</h4><p>在任何基于 Leader 的一致性算法中，Leader 都必须存储所有已经提交的日志条目。在某些一致性算法中，某个节点即使是一开始并没有包含所有已经提交的日志条目，它也能被选为 Leader。这些算法都包含一些额外的机制来识别丢失的日志条目并把他们传送给新的 Leader。但这种方式会带来很大的复杂性。Raft 使用了一种更加简单的方法，它可以保证所有之前的任期号中已经提交的日志条目在选举的时候都会出现在新的 Leader 中，不需要传送这些日志条目给 Leader。这意味着日志条目的传送是单向的，只从 Leader 传给 Follower，并且 Leader 从不会覆盖自身本地日志中已经存在的条目。</p>
+<p>Raft 使用投票的方式来阻止一个 Candidate 赢得选举除非这个 Candidate 包含了所有已经提交的日志条目。如果 Candidate 的日志至少和大多数的服务器节点一样新 或 比他们更新，那么他一定持有了所有已经提交的日志条目。请求投票 RPC(<code>RequestVote RPC</code>) 实现了这样的限制： RPC 中包含了 Candidate 的日志信息，然后投票人会拒绝掉那些日志没有自己新的投票请求。(根据 term、lastLogTerm、lastLogIndex 来判断, 可参考上文选举过程的流程图)</p>
+<h4 id="Leader-只允许提交自己任期内的日志"><a href="#Leader-只允许提交自己任期内的日志" class="headerlink" title="Leader 只允许提交自己任期内的日志"></a>Leader 只允许提交自己任期内的日志</h4><p>下图展示了一种情况，一条已经被存储到大多数节点上的老日志条目(2)，也依然有可能会被未来的 Leader 覆盖掉。</p>
+<p><img src="https://matthewblog.oss-cn-hangzhou.aliyuncs.com/blog/Leader%E5%8F%AA%E5%85%81%E8%AE%B8%E6%8F%90%E4%BA%A4%E8%87%AA%E5%B7%B1%E4%BB%BB%E6%9C%9F%E5%86%85%E7%9A%84%E6%97%A5%E5%BF%97.png" alt="Leader只允许提交自己任期内的日志"></p>
+<p>一开始如 (a) 所示，之后 S1 下线，(b) 中 S5 从 S3 和 S4 处获得了投票成为了 Leader 并收到了一条来自客户端的消息，之后 S5 下线。(c) 中 S1 恢复并成为了 Leader (Term=4)，并且将日志复制到了多数节点，此时， 如果没有 Leader 提交的任期限制，则 S1 在任期 4 下提交了任期 2 的内容(此时, 用户可见), 然后 S1 下线。(d1) 中 S5 恢复，并从 S2、S3、S4 处获得了足够投票，然后覆盖了他们在索引 2 处的日志，再提交日志(此时,对于用户来说就产生了前后不一致的问题)。<br>另一种遵守 Leader 提交任期限制的情况如(d2)所示, 在任期 4 时提交日志时, 顺带着提交了任期 2，此时, S5 不可能成为 Leader(因为 S1、S2、S3 的任期都比它大), 对于用户来说, 就只会见到一种状态, 保证了一致性。</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+    
+        <a href="/2021/04/11/Git%20%E5%A4%9A%E6%AC%A1%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95%E4%BC%98%E5%8C%96%E6%98%BE%E7%A4%BA/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Git 多次提交记录优化显示</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+</section>
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            Matthew &copy; 2022 
+            <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank"></a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten" target="_blank" rel="noopener">wikitten</a>
+            
+                <br>
+                <span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i> <span id="busuanzi_value_site_pv"></span></span>
+                &nbsp;|&nbsp;
+                <span id="busuanzi_container_site_pv"><i class="fa fa-user"></i> <span id="busuanzi_value_site_uv"></span></span>
+            
+        </div>
+    </div>
+    <script type="text/javascript">document.write(unescape("%3Cspan id='cnzz_stat_icon_1279640132'%3E%3C/span%3E%3Cscript src='https://v1.cnzz.com/z_stat.php%3Fid%3D1279640132%26online%3D1%26show%3Dline' type='text/javascript'%3E%3C/script%3E"));</script>
+</footer>
+
+        
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
